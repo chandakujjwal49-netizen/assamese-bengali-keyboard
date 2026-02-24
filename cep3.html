@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assamese & Bengali Keyboard with Translation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma;
+            background: linear-gradient(135deg, #e1fee0 0%, #33151d 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #312e81;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #4b5563;
+            margin-bottom: 30px;
+        }
+
+        /* Language Selector */
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .lang-btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            color: #4f46e5;
+        }
+
+        .lang-btn.active {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .lang-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Text Display Area */
+        .text-display {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #textArea {
+            width: 100%;
+            min-height: 120px;
+            font-size: 2rem;
+            padding: 15px;
+            border: 2px solid #c7d2fe;
+            border-radius: 8px;
+            background: #f9fafb;
+            font-family: 'Noto Sans Bengali', serif;
+            resize: vertical;
+        }
+
+        #textArea::placeholder {
+            color: #9ca3af;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+        }
+
+        .copy-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+        }
+
+        .translate-btn {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .translate-btn:hover {
+            background: #7c3aed;
+        }
+
+        .translate-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        /* Translation Section */
+        .translation-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .translation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .translation-header h2 {
+            color: #312e81;
+            font-size: 1.5rem;
+        }
+
+        .translate-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .translate-option-btn {
+            padding: 8px 16px;
+            border: 2px solid #8b5cf6;
+            background: white;
+            color: #8b5cf6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .translate-option-btn.active {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .translate-option-btn:hover {
+            background: #f3e8ff;
+        }
+
+        .translate-option-btn.active:hover {
+            background: #7c3aed;
+        }
+
+        .translation-output {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 80px;
+            font-size: 1.5rem;
+            color: #92400e;
+        }
+
+        .translation-output.hindi {
+            font-family: 'Noto Sans Devanagari', serif;
+        }
+
+        .translation-output.english {
+            font-family: 'Segoe UI', Tahoma;
+        }
+
+        .translation-output.empty {
+            color: #d97706;
+            font-style: italic;
+            font-size: 1.2rem;
+        }
+
+        .loading {
+            color: #8b5cf6;
+            font-style: italic;
+        }
+
+        /* Keyboard Container */
+        .keyboard-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .key {
+            width: 50px;
+            height: 50px;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Noto Sans Bengali', serif;
+        }
+
+        .key:hover {
+            background: #ddd6fe;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .key:active {
+            transform: translateY(0);
+            background: #c7d2fe;
+        }
+
+        .space-key {
+            width: 300px;
+        }
+
+        .backspace-key {
+            width: 120px;
+            background: #fb923c;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .backspace-key:hover {
+            background: #f97316;
+        }
+
+        /* Vowels and Consonants Section */
+        .char-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #312e81;
+            margin-bottom: 15px;
+        }
+
+        .char-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .vowel-key {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+        }
+
+        .vowel-key:hover {
+            background: #bfdbfe;
+        }
+
+        .consonant-key {
+            background: #d1fae5;
+            border: 1px solid #6ee7b7;
+        }
+
+        .consonant-key:hover {
+            background: #a7f3d0;
+        }
+
+        @media (max-width: 768px) {
+            .key {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .space-key {
+                width: 200px;
+            }
+
+            .backspace-key {
+                width: 100px;
+                font-size: 0.9rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            #textArea {
+                font-size: 1.5rem;
+            }
+
+            .translate-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="mainTitle">অসমীয়া Keyboard with Translation</h1>
+        <p class="subtitle" id="subtitle">Assamese Language Typing & Translation Interface</p>
+
+        <!-- Language Selector -->
+        <div class="language-selector">
+            <button class="lang-btn active" onclick="switchLanguage('assamese')">
+                অসমীয়া (Assamese)
+            </button>
+            <button class="lang-btn" onclick="switchLanguage('bengali')">
+                বাংলা (Bengali)
+            </button>
+        </div>
+
+        <!-- Text Display Area -->
+        <div class="text-display">
+            <textarea id="textArea" placeholder="Start typing..."></textarea>
+            <div class="control-buttons">
+                <button class="control-btn clear-btn" onclick="clearText()">Clear</button>
+                <button class="control-btn copy-btn" onclick="copyText()">Copy Text</button>
+                <button class="control-btn translate-btn" onclick="translateText()" id="translateBtn">
+                    Translate
+                </button>
+            </div>
+        </div>
+
+        <!-- Translation Section -->
+        <div class="translation-section">
+            <div class="translation-header">
+                <h2>Translation</h2>
+                <div class="translate-options">
+                    <button class="translate-option-btn active" onclick="setTranslateLanguage('hindi')" id="hindiBtn">
+                        हिंदी Hindi
+                    </button>
+                    <button class="translate-option-btn" onclick="setTranslateLanguage('english')" id="englishBtn">
+                        English
+                    </button>
+                </div>
+            </div>
+            <div class="translation-output empty" id="translationOutput">
+                Click "Translate" to see the translation here...
+            </div>
+        </div>
+
+        <!-- Keyboard Layout -->
+        <div class="keyboard-container">
+            <div id="keyboardLayout"></div>
+
+            <!-- Space and Backspace -->
+            <div class="keyboard-row" style="margin-top: 10px;">
+                <button class="key backspace-key" onclick="backspace()">← Backspace</button>
+                <button class="key space-key" onclick="addChar(' ')">Space</button>
+            </div>
+
+            <!-- Vowels Section -->
+            <div class="char-section">
+                <h3 class="section-title">Vowels (স্বৰবৰ্ণ / স্বরবর্ণ)</h3>
+                <div class="char-grid" id="vowelsGrid"></div>
+            </div>
+
+            <!-- Consonants Section -->
+            <div class="char-section">
+                <h3 class="section-title">Consonants (ব্যঞ্জনবৰ্ণ / ব্যঞ্জনবর্ণ)</h3>
+                <div class="char-grid" id="consonantsGrid"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentLanguage = 'assamese';
+        let targetTranslateLanguage = 'hindi';
+
+        // Keyboard layouts
+        const layouts = {
+            assamese: {
+                row1: ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯', '০', '-', 'ৃ'],
+                row2: ['ৌ', 'ৈ', 'া', 'ী', 'ূ', 'ব', 'হ', 'গ', 'দ', 'জ', 'ড', '়'],
+                row3: ['ো', 'ে', '্', 'ি', 'ু', 'প', 'ৰ', 'ক', 'ত', 'চ', 'ট'],
+                row4: ['ং', 'ম', 'ন', 'ৱ', 'ল', 'স', ',', '.', 'য']
+            },
+            bengali: {
+                row1: ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯', '০', '-', 'ৃ'],
+                row2: ['ৌ', 'ৈ', 'া', 'ী', 'ূ', 'ব', 'হ', 'গ', 'দ', 'জ', 'ড', '়'],
+                row3: ['ো', 'ে', '্', 'ি', 'ু', 'প', 'র', 'ক', 'ত', 'চ', 'ট'],
+                row4: ['ং', 'ম', 'ন', 'ব', 'ল', 'স', ',', '.', 'য']
+            }
+        };
+
+        // Vowels (same for both)
+        const vowels = ['অ', 'আ', 'ই', 'ঈ', 'উ', 'ঊ', 'ঋ', 'এ', 'ঐ', 'ও', 'ঔ'];
+
+        // Consonants
+        const consonants = {
+            assamese: ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ', 'ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'ৰ', 'ল', 'ৱ', 'শ', 'ষ', 'স', 'হ', 'ক্ষ', 'ড়', 'ঢ়', 'য়', 'ৎ', 'ং', 'ঃ', 'ঁ'],
+            bengali: ['ক', 'খ', 'গ', 'ঘ', 'ঙ', 'চ', 'ছ', 'জ', 'ঝ', 'ঞ', 'ট', 'ঠ', 'ড', 'ঢ', 'ণ', 'ত', 'থ', 'দ', 'ধ', 'ন', 'প', 'ফ', 'ব', 'ভ', 'ম', 'য', 'র', 'ল', 'ব', 'শ', 'ষ', 'স', 'হ', 'ক্ষ', 'ড়', 'ঢ়', 'য়', 'ৎ', 'ং', 'ঃ', 'ঁ']
+        };
+
+        // Language codes for translation
+        const languageCodes = {
+            assamese: 'as',
+            bengali: 'bn',
+            hindi: 'hi',
+            english: 'en'
+        };
+
+        // Initialize keyboard
+        function initKeyboard() {
+            const layout = layouts[currentLanguage];
+            const keyboardLayout = document.getElementById('keyboardLayout');
+            
+            keyboardLayout.innerHTML = '';
+            
+            // Create keyboard rows
+            for (let i = 1; i <= 4; i++) {
+                const row = document.createElement('div');
+                row.className = 'keyboard-row';
+                
+                layout['row' + i].forEach(char => {
+                    const key = document.createElement('button');
+                    key.className = 'key';
+                    key.textContent = char;
+                    key.onclick = () => addChar(char);
+                    row.appendChild(key);
+                });
+                
+                keyboardLayout.appendChild(row);
+            }
+
+            // Vowels
+            const vowelsGrid = document.getElementById('vowelsGrid');
+            vowelsGrid.innerHTML = '';
+            vowels.forEach(vowel => {
+                const key = document.createElement('button');
+                key.className = 'key vowel-key';
+                key.textContent = vowel;
+                key.onclick = () => addChar(vowel);
+                vowelsGrid.appendChild(key);
+            });
+
+            // Consonants
+            const consonantsGrid = document.getElementById('consonantsGrid');
+            consonantsGrid.innerHTML = '';
+            consonants[currentLanguage].forEach(consonant => {
+                const key = document.createElement('button');
+                key.className = 'key consonant-key';
+                key.textContent = consonant;
+                key.onclick = () => addChar(consonant);
+                consonantsGrid.appendChild(key);
+            });
+        }
+
+        // Switch language
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.lang-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update title
+            if (lang === 'assamese') {
+                document.getElementById('mainTitle').textContent = 'অসমীয়া Keyboard with Translation';
+                document.getElementById('subtitle').textContent = 'Assamese Language Typing & Translation Interface';
+            } else {
+                document.getElementById('mainTitle').textContent = 'বাংলা Keyboard with Translation';
+                document.getElementById('subtitle').textContent = 'Bengali Language Typing & Translation Interface';
+            }
+            
+            // Rebuild keyboard
+            initKeyboard();
+        }
+
+        // Set translation language
+        function setTranslateLanguage(lang) {
+            targetTranslateLanguage = lang;
+            
+            // Update button states
+            document.getElementById('hindiBtn').classList.remove('active');
+            document.getElementById('englishBtn').classList.remove('active');
+            
+            if (lang === 'hindi') {
+                document.getElementById('hindiBtn').classList.add('active');
+            } else {
+                document.getElementById('englishBtn').classList.add('active');
+            }
+        }
+
+        // Translate text using Google Translate API
+        async function translateText() {
+            const textArea = document.getElementById('textArea');
+            const text = textArea.value.trim();
+            const outputDiv = document.getElementById('translationOutput');
+            const translateBtn = document.getElementById('translateBtn');
+            
+            if (!text) {
+                outputDiv.className = 'translation-output empty';
+                outputDiv.textContent = 'Please type some text first...';
+                return;
+            }
+
+            // Show loading state
+            translateBtn.disabled = true;
+            translateBtn.textContent = 'Translating...';
+            outputDiv.className = 'translation-output loading';
+            outputDiv.textContent = 'Translating, please wait...';
+
+            try {
+                const sourceLang = languageCodes[currentLanguage];
+                const targetLang = languageCodes[targetTranslateLanguage];
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                // Extract translated text
+                let translatedText = '';
+                if (data && data[0]) {
+                    data[0].forEach(item => {
+                        if (item[0]) {
+                            translatedText += item[0];
+                        }
+                    });
+                }
+
+                // Display translation
+                if (translatedText) {
+                    outputDiv.className = `translation-output ${targetTranslateLanguage}`;
+                    outputDiv.textContent = translatedText;
+                } else {
+                    outputDiv.className = 'translation-output empty';
+                    outputDiv.textContent = 'Translation failed. Please try again.';
+                }
+            } catch (error) {
+                console.error('Translation error:', error);
+                outputDiv.className = 'translation-output empty';
+                outputDiv.textContent = 'Translation failed. Please check your internet connection and try again.';
+            } finally {
+                translateBtn.disabled = false;
+                translateBtn.textContent = 'Translate';
+            }
+        }
+
+        // Add character to text area
+        function addChar(char) {
+            const textArea = document.getElementById('textArea');
+            const start = textArea.selectionStart;
+            const end = textArea.selectionEnd;
+            const text = textArea.value;
+            
+            textArea.value = text.substring(0, start) + char + text.substring(end);
+            textArea.selectionStart = textArea.selectionEnd = start + char.length;
+            textArea.focus();
+        }
+
+        // Backspace
+        function backspace() {
+            const textArea = document.getElementById('textArea');
+            const start = textArea.selectionStart;
+            const end = textArea.selectionEnd;
+            const text = textArea.value;
+            
+            if (start === end && start > 0) {
+                textArea.value = text.substring(0, start - 1) + text.substring(end);
+                textArea.selectionStart = textArea.selectionEnd = start - 1;
+            } else if (start !== end) {
+                textArea.value = text.substring(0, start) + text.substring(end);
+                textArea.selectionStart = textArea.selectionEnd = start;
+            }
+            textArea.focus();
+        }
+
+        // Clear text
+        function clearText() {
+            document.getElementById('textArea').value = '';
+            document.getElementById('translationOutput').className = 'translation-output empty';
+            document.getElementById('translationOutput').textContent = 'Click "Translate" to see the translation here...';
+            document.getElementById('textArea').focus();
+        }
+
+        // Copy text
+        function copyText() {
+            const textArea = document.getElementById('textArea');
+            textArea.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Initialize on page load
+        window.onload = initKeyboard;
+    </script>
+</body>
+</html>
